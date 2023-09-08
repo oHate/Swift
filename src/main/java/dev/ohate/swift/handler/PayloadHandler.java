@@ -1,6 +1,6 @@
-package org.flaremc.swift.handler;
+package dev.ohate.swift.handler;
 
-import org.flaremc.swift.payload.PayloadPriority;
+import dev.ohate.swift.payload.PayloadPriority;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

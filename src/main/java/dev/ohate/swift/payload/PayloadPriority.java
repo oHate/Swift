@@ -1,4 +1,4 @@
-package org.flaremc.swift.payload;
+package dev.ohate.swift.payload;
 
 /**
  * Enumeration representing different priority levels for payload handlers.

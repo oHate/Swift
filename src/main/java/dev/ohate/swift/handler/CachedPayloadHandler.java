@@ -1,8 +1,8 @@
-package org.flaremc.swift.handler;
+package dev.ohate.swift.handler;
 
-import org.flaremc.swift.payload.Payload;
-import org.flaremc.swift.payload.PayloadListener;
-import org.flaremc.swift.payload.PayloadPriority;
+import dev.ohate.swift.payload.PayloadListener;
+import dev.ohate.swift.payload.PayloadPriority;
+import dev.ohate.swift.payload.Payload;
 
 import java.lang.reflect.Method;
 

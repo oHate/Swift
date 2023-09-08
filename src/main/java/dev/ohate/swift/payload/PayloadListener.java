@@ -1,4 +1,4 @@
-package org.flaremc.swift.payload;
+package dev.ohate.swift.payload;
 
 /**
  * Marker interface for classes that act as payload listeners.

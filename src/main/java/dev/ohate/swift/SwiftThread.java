@@ -1,6 +1,6 @@
-package org.flaremc.swift;
+package dev.ohate.swift;
 
-import org.flaremc.swift.util.Redis;
+import dev.ohate.swift.util.Redis;
 
 /**
  * The SwiftThread class represents a background thread responsible for subscribing to a Redis Pub/Sub channel.

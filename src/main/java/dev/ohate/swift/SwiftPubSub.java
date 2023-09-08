@@ -1,7 +1,7 @@
-package org.flaremc.swift;
+package dev.ohate.swift;
 
-import org.flaremc.swift.payload.Payload;
-import org.flaremc.swift.payload.PayloadRegistry;
+import dev.ohate.swift.payload.Payload;
+import dev.ohate.swift.payload.PayloadRegistry;
 import redis.clients.jedis.JedisPubSub;
 
 import java.util.Arrays;

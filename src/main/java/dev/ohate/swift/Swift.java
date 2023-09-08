@@ -1,10 +1,10 @@
-package org.flaremc.swift;
+package dev.ohate.swift;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.flaremc.swift.payload.Payload;
-import org.flaremc.swift.payload.PayloadRegistry;
-import org.flaremc.swift.util.Redis;
+import dev.ohate.swift.util.Redis;
+import dev.ohate.swift.payload.Payload;
+import dev.ohate.swift.payload.PayloadRegistry;
 
 import java.net.URISyntaxException;
 

@@ -1,7 +1,7 @@
-package org.flaremc.swift.payload;
+package dev.ohate.swift.payload;
 
-import org.flaremc.swift.handler.CachedPayloadHandler;
-import org.flaremc.swift.handler.PayloadHandler;
+import dev.ohate.swift.handler.CachedPayloadHandler;
+import dev.ohate.swift.handler.PayloadHandler;
 
 import java.lang.reflect.Method;
 import java.util.*;

@@ -1,4 +1,4 @@
-package org.flaremc.swift.util;
+package dev.ohate.swift.util;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;

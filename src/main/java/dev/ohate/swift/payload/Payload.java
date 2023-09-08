@@ -1,4 +1,4 @@
-package org.flaremc.swift.payload;
+package dev.ohate.swift.payload;
 
 /**
  * Base class for payload objects that can be sent between servers or systems.
