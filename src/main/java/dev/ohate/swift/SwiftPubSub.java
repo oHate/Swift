@@ -1,5 +1,9 @@
 package dev.ohate.swift;
 
+import dev.ohate.swift.feedback.Feedback;
+import dev.ohate.swift.feedback.FeedbackHandler;
+import dev.ohate.swift.feedback.FeedbackPayload;
+import dev.ohate.swift.feedback.FeedbackState;
 import dev.ohate.swift.payload.Payload;
 import dev.ohate.swift.payload.PayloadRegistry;
 import redis.clients.jedis.JedisPubSub;
@@ -50,6 +54,21 @@ public class SwiftPubSub extends JedisPubSub {
 
         if(!payload.sendToSelf() && swift.getUnit().equals(payload.getOrigin())) {
             return;
+        }
+
+        if (payload instanceof FeedbackPayload feedbackPayload) {
+            feedbackPayload.setSwift(swift);
+
+            FeedbackHandler handler = swift.getFeedbackHandler();
+            Feedback feedback = handler.getFeedback(feedbackPayload.getFeedbackId());
+
+            if (feedbackPayload.getState() == FeedbackState.RESPONSE
+                    && feedback != null
+                    && !feedback.hasResponded(feedbackPayload.getOrigin())) {
+                handler.executeFeedbackPayload(feedbackPayload);
+                feedback.addResponse(feedbackPayload.getOrigin());
+                return;
+            }
         }
 
         registry.invokePayload(payload);

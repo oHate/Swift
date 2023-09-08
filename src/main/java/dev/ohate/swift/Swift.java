@@ -2,11 +2,15 @@ package dev.ohate.swift;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import dev.ohate.swift.util.Redis;
+import dev.ohate.swift.feedback.Feedback;
+import dev.ohate.swift.feedback.FeedbackHandler;
+import dev.ohate.swift.feedback.FeedbackPayload;
 import dev.ohate.swift.payload.Payload;
 import dev.ohate.swift.payload.PayloadRegistry;
+import dev.ohate.swift.util.Redis;
 
 import java.net.URISyntaxException;
+import java.util.function.Consumer;
 
 /**
  * The Swift class represents a messaging framework for broadcasting payloads across a network.
@@ -18,6 +22,7 @@ public class Swift {
     private final String network;
     private final String unit;
     private final PayloadRegistry registry;
+    private final FeedbackHandler feedbackHandler;
 
     private Redis redis;
 
@@ -35,16 +40,17 @@ public class Swift {
     /**
      * Create a Swift instance with custom Redis timeout and Swift retry delay.
      *
-     * @param network       The name of the network.
-     * @param unit          The unit or server name.
-     * @param redisUri      The URI of the Redis server.
-     * @param redisTimeOut  The connection timeout for Redis in milliseconds.
+     * @param network         The name of the network.
+     * @param unit            The unit or server name.
+     * @param redisUri        The URI of the Redis server.
+     * @param redisTimeOut    The connection timeout for Redis in milliseconds.
      * @param swiftRetryDelay The delay in milliseconds between retries for the Swift thread.
      */
     public Swift(String network, String unit, String redisUri, int redisTimeOut, int swiftRetryDelay) {
         this.network = network;
         this.unit = unit;
         this.registry = new PayloadRegistry();
+        this.feedbackHandler = new FeedbackHandler();
 
         Redis redisInstance;
 
@@ -67,6 +73,18 @@ public class Swift {
      * @param payload The payload to broadcast.
      */
     public void broadcastPayload(Payload payload) {
+        redis.runRedisCommand(jedis -> jedis.publish(network, getTransmitReadyData(payload)));
+    }
+
+    /**
+     * Broadcasts a feedback payload to the network and associates it with a callback for handling responses.
+     *
+     * @param payload  The feedback payload to broadcast.
+     * @param callback A consumer function that handles responses to the feedback payload.
+     * @param <T>      The type of the feedback payload.
+     */
+    public <T extends FeedbackPayload> void broadcastFeedbackPayload(T payload, Consumer<T> callback) {
+        feedbackHandler.addFeedback(new Feedback<>(payload.getFeedbackId(), payload.getTtl(), callback));
         redis.runRedisCommand(jedis -> jedis.publish(network, getTransmitReadyData(payload)));
     }
 
@@ -117,6 +135,15 @@ public class Swift {
      */
     public PayloadRegistry getRegistry() {
         return registry;
+    }
+
+    /**
+     * Get the feedback handler associated with this Swift instance.
+     *
+     * @return The feedback handler.
+     */
+    public FeedbackHandler getFeedbackHandler() {
+        return feedbackHandler;
     }
 
 }

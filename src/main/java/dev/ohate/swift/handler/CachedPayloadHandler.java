@@ -1,8 +1,8 @@
 package dev.ohate.swift.handler;
 
+import dev.ohate.swift.payload.Payload;
 import dev.ohate.swift.payload.PayloadListener;
 import dev.ohate.swift.payload.PayloadPriority;
-import dev.ohate.swift.payload.Payload;
 
 import java.lang.reflect.Method;
 
