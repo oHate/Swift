@@ -1,5 +1,5 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'maven-publish'
     id 'java'
 }
 
@@ -14,6 +14,15 @@ dependencies {
     implementation 'redis.clients:jedis:4.4.3'
 }
 
-shadowJar {
-    archiveClassifier.set('')
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'dev.ohate'
+            artifactId = 'swift'
+            version = '1.0'
+
+            from components.java
+        }
+    }
 }
+
