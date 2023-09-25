@@ -24,7 +24,7 @@ public class Swift {
     private final PayloadRegistry registry;
     private final FeedbackHandler feedbackHandler;
 
-    private Redis redis;
+    private final Redis redis;
 
     /**
      * Create a Swift instance with default Redis timeout and Swift retry delay.
@@ -52,16 +52,13 @@ public class Swift {
         this.registry = new PayloadRegistry();
         this.feedbackHandler = new FeedbackHandler();
 
-        Redis redisInstance;
-
         try {
-            redisInstance = new Redis(redisUri, redisTimeOut);
+            this.redis = new Redis(redisUri, redisTimeOut);
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
 
-        this.redis = redisInstance;
-        this.redis.connect();
+        redis.connect();
 
         new SwiftThread(this, swiftRetryDelay).start();
     }
