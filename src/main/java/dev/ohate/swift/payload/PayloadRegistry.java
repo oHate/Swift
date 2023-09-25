@@ -28,6 +28,21 @@ public class PayloadRegistry {
     }
 
     /**
+     * Register multiple payload classes.
+     *
+     * @param payloads The payload classes to register.
+     */
+    public void registerPayloads(Class<? extends Payload>... payloads) {
+        for (Class<? extends Payload> payload : payloads) {
+            try {
+                registerPayload(payload);
+            } catch (RuntimeException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
      * Register a payload class.
      *
      * @param payload The payload class to register.

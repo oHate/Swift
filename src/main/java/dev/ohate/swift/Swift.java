@@ -57,8 +57,7 @@ public class Swift {
         try {
             redisInstance = new Redis(redisUri, redisTimeOut);
         } catch (URISyntaxException e) {
-            e.printStackTrace();
-            return;
+            throw new RuntimeException(e);
         }
 
         this.redis = redisInstance;
