@@ -1,6 +1,6 @@
 # Swift
 
-[![](https://jitpack.io/v/oHate/Swift.svg)](https://jitpack.io/#ohate/swift)[![Release](https://img.shields.io/github/release/ohate/swift.svg?sort=semver)](https://github.com/ohate/swift/releases/latest)
+[![](https://jitpack.io/v/stevensci/Swift.svg)](https://jitpack.io/#stevensci/swift)[![Release](https://img.shields.io/github/release/stevensci/swift.svg?sort=semver)](https://github.com/stevensci/swift/releases/latest)
 
 ## What is Swift?
 
@@ -21,7 +21,7 @@ Next you will need to add Swift as a dependency. Replace **LATEST** with the lat
 
 ```xml
 <dependency>
-    <groupId>dev.ohate</groupId>
+    <groupId>com.github.stevensci</groupId>
     <artifactId>Swift</artifactId>
     <version>LATEST</version>
 </dependency>
@@ -90,4 +90,4 @@ swift.broadcastPayload(new UserJoinPayload("John"));
 
 ## Contributing
 
-I love your contributions! Bug reports are always welcome! [You can open a bug report on GitHub](https://github.com/ohate/swift/issues/new).
+I love your contributions! Bug reports are always welcome! [You can open a bug report on GitHub](https://github.com/stevensci/swift/issues/new).
