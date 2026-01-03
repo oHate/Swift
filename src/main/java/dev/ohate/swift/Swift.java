@@ -4,7 +4,6 @@ import dev.ohate.swift.handler.ListenerInvocation;
 import dev.ohate.swift.handler.PayloadHandler;
 import dev.ohate.swift.json.JsonProvider;
 import dev.ohate.swift.payload.PayloadListener;
-import dev.ohate.swift.payload.PayloadPriority;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import org.slf4j.Logger;
@@ -12,7 +11,10 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.lang.reflect.Modifier;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -40,13 +42,20 @@ public class Swift implements AutoCloseable {
 
     public void registerListener(PayloadListener listener) {
         for (Method method : listener.getClass().getDeclaredMethods()) {
+            if (!Modifier.isPublic(method.getModifiers())) {
+                LOGGER.error(
+                        "@PayloadHandler method must be public: {}#{}",
+                        method.getDeclaringClass().getName(),
+                        method.getName()
+                );
+                continue;
+            }
+
             PayloadHandler annotation = method.getAnnotation(PayloadHandler.class);
 
             if (annotation == null || method.getParameterTypes().length != 1) {
                 continue;
             }
-
-            method.setAccessible(true);
 
             Class<?> payloadClass = method.getParameterTypes()[0];
 
