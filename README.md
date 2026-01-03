@@ -1,93 +1,97 @@
 # Swift
 
-[![](https://jitpack.io/v/stevensci/Swift.svg)](https://jitpack.io/#stevensci/swift)[![Release](https://img.shields.io/github/release/stevensci/swift.svg?sort=semver)](https://github.com/stevensci/swift/releases/latest)
+**Swift** provides a simple way to broadcast typed payloads across a Redis Pub/Sub network and dispatch them to annotated listeners with priority ordering. 
+Swift interacts with Redis using the [Lettuce](https://github.com/redis/lettuce) library.
 
-## What is Swift?
+## Core Concepts
 
-Swift is a [Jedis](https://github.com/redis/jedis) Pub/Sub handler that makes it easier to broadcast messages (called payloads) to all subscribers.
+### Payload
 
-## Getting started
-
-To get started with Swift, first add the JitPack repository. If you're using Maven, that looks like this:
-
-```xml
-<repository>  
-    <id>jitpack.io</id>  
-    <url>https://jitpack.io</url>  
-</repository>
-```
-
-Next you will need to add Swift as a dependency. Replace **LATEST** with the latest GitHub release number.
-
-```xml
-<dependency>
-    <groupId>com.github.stevensci</groupId>
-    <artifactId>Swift</artifactId>
-    <version>LATEST</version>
-</dependency>
-```
-
-## How do I use Swift?
-
-First create an instance of Swift.
+A **payload** is any Java object you want to send across the network.
 
 ```java
-Swift swift = new Swift("networkName", "unitName", "redisUri");
-```
-
-`networkName` - The name of the network that payloads will be broadcasted on.
-
-`unitName` - The name of the application or unit that broadcasted the payload, this field is used as the origin name in a payload.
-
-`redisUri` - The uri that will be used to connect to Redis, for example `redis://127.0.0.1:6379/0`
-
-Next you will need to create a Payload. We use Gson to serialize the Payload class as Json.
-
-```java
-public class UserJoinPayload extends Payload {  
-  
-    private final String username;  
-  
-    public UserJoinPayload(String username) {  
-        this.username = username;  
-    }  
-  
-    public String getUsername() {  
-        return username;  
-    }  
-      
+public class MessagePayload {
+    private final String message;
 }
 ```
 
-In order to do anything useful when we receive the payload we need to created a listener. Payload listeners implement the PayloadListener interface, every payload handler is annotated with the @PayloadHandler annotation.
+### Payload Listener
+
+A **listener** is a class that implements `PayloadListener` and contains methods annotated with `@PayloadHandler`
 
 ```java
-public class TestPayloadListener implements PayloadListener {  
-  
-    @PayloadHandler  
-    public void onUserJoin(UserJoinPayload payload) {  
-        System.out.println(payload.getUsername() + " has joined!");  
-    }  
-  
+public class ChatListener implements PayloadListener {
+
+    @PayloadHandler(priority = PayloadPriority.NORMAL)
+    public void onChat(ChatMessagePayload payload) {
+        System.out.println(payload.getMessage());
+    }
 }
 ```
 
-To receive and send these payloads you will need to register the two objects we created.
+Each handler method:
+- Must be annotated with `@PayloadHandler`
+- Must take **exactly one parameter**
+- That parameter defines the payload type it handles
+
+### Payload Priority
+
+Handlers are executed from `HIGHEST` to `LOWEST`.
 
 ```java
-PayloadRegistry registry = swift.getRegistry();  
-  
-registry.registerPayloads(UserJoinPayload.class);  
-
-registry.registerListener(new TestPayloadListener());
+public enum PayloadPriority {
+    HIGHEST,
+    HIGH,
+    NORMAL,
+    LOW,
+    LOWEST
+}
 ```
 
-To send the payload you can broadcast it by using the broadcast method in Swift.
+## Usage
+
+### Creating a Swift instance
 
 ```java
-swift.broadcastPayload(new UserJoinPayload("John"));
+RedisClient redisClient = RedisClient.create("redis://localhost:6379");
+JsonProvider jsonProvider = new GsonJsonProvider();
+
+Swift swift = new Swift(
+    "my-network",   // Redis channel (network)
+    "unit-1",       // Sender identifier (unit)
+    redisClient,
+    jsonProvider
+);
 ```
 
-## Contributing
+`network` - Redis Pub/Sub channel that payloads will be broadcast on.
 
-I love your contributions! Bug reports are always welcome! [You can open a bug report on GitHub](https://github.com/stevensci/swift/issues/new).
+`unit` - Identifier of the payload sender.
+
+### Registering listeners
+
+```java
+swift.registerListener(new ChatMessageListener());
+```
+
+Or multiple at once:
+
+```java
+swift.registerListeners(
+    new ChatMessageListener(),
+    new UserConnectionListener()
+);
+```
+
+Listeners can be registered at runtime and are thread-safe.
+
+### Broadcasting a payload
+
+```java
+swift.broadcastPayload(new ChatMessagePayload("Hello world"));
+```
+
+This:
+1. Serializes the payload using the provided `JsonProvider`.
+2. Wraps it in a `Message` object.
+3. Publishes it to Redis.
