@@ -6,13 +6,13 @@ import dev.ohate.swift.payload.PayloadPriority;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class ListenerInvocation {
+public class Handler {
 
     private final PayloadPriority priority;
     private final PayloadListener listener;
     private final Method method;
 
-    public ListenerInvocation(PayloadPriority priority, PayloadListener listener, Method method) {
+    public Handler(PayloadPriority priority, PayloadListener listener, Method method) {
         this.priority = priority;
         this.listener = listener;
         this.method = method;

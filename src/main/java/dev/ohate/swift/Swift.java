@@ -1,6 +1,6 @@
 package dev.ohate.swift;
 
-import dev.ohate.swift.handler.ListenerInvocation;
+import dev.ohate.swift.handler.Handler;
 import dev.ohate.swift.handler.PayloadHandler;
 import dev.ohate.swift.json.JsonProvider;
 import dev.ohate.swift.payload.PayloadListener;
@@ -23,7 +23,7 @@ public class Swift implements AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger(Swift.class);
 
     private final Map<String, Class<?>> payloadTypes = new ConcurrentHashMap<>();
-    private final Map<Class<?>, List<ListenerInvocation>> payloadHandlers = new ConcurrentHashMap<>();
+    private final Map<Class<?>, List<Handler>> payloadHandlers = new ConcurrentHashMap<>();
 
     private final String network;
     private final String unit;
@@ -36,7 +36,7 @@ public class Swift implements AutoCloseable {
         this.jsonProvider = jsonProvider;
         this.connection = client.connectPubSub();
 
-        this.connection.addListener(new SwiftPubSubListener(this, jsonProvider));
+        this.connection.addListener(new SwiftPubSubAdapter(this, jsonProvider));
         this.connection.sync().subscribe(network);
     }
 
@@ -64,10 +64,10 @@ public class Swift implements AutoCloseable {
 
             this.payloadHandlers
                     .computeIfAbsent(payloadClass, k -> new CopyOnWriteArrayList<>())
-                    .add(new ListenerInvocation(annotation.priority(), listener, method));
+                    .add(new Handler(annotation.priority(), listener, method));
 
             this.payloadHandlers.get(payloadClass)
-                    .sort(Comparator.comparing(ListenerInvocation::getPriority));
+                    .sort(Comparator.comparing(Handler::getPriority));
         }
     }
 
@@ -84,13 +84,13 @@ public class Swift implements AutoCloseable {
             return;
         }
 
-        List<ListenerInvocation> handlers = this.payloadHandlers.get(payloadClass);
+        List<Handler> handlers = this.payloadHandlers.get(payloadClass);
 
         if (handlers.isEmpty()) {
             return;
         }
 
-        for (ListenerInvocation handler : handlers) {
+        for (Handler handler : handlers) {
             try {
                 handler.execute(payload);
             } catch (InvocationTargetException | IllegalAccessException e) {

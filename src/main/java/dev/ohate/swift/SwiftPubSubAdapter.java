@@ -1,14 +1,14 @@
 package dev.ohate.swift;
 
 import dev.ohate.swift.json.JsonProvider;
-import io.lettuce.core.pubsub.RedisPubSubListener;
+import io.lettuce.core.pubsub.RedisPubSubAdapter;
 
-public class SwiftPubSubListener implements RedisPubSubListener<String, String> {
+public class SwiftPubSubAdapter extends RedisPubSubAdapter<String, String> {
 
     private final Swift swift;
     private final JsonProvider jsonProvider;
 
-    public SwiftPubSubListener(Swift swift, JsonProvider jsonProvider) {
+    public SwiftPubSubAdapter(Swift swift, JsonProvider jsonProvider) {
         this.swift = swift;
         this.jsonProvider = jsonProvider;
     }
@@ -35,20 +35,5 @@ public class SwiftPubSubListener implements RedisPubSubListener<String, String> 
 
         this.swift.invokePayload(payload);
     }
-
-    @Override
-    public void message(String pattern, String channel, String message) {}
-
-    @Override
-    public void subscribed(String channel, long count) {}
-
-    @Override
-    public void psubscribed(String pattern, long count) {}
-
-    @Override
-    public void unsubscribed(String channel, long count) {}
-
-    @Override
-    public void punsubscribed(String pattern, long count) {}
 
 }
